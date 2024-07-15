@@ -1,21 +1,22 @@
-const express = require('express');
-const path = require('path');
-const db = require('./config/connection');
-const routes = require('./routes');
+const path = require("path");
+const express = require("express");
+const { ApolloServer } = require("@apollo/server");
+const { expressMiddleware } = requrie("@apollo/server/express4");
 
-const app = express();
+const { typeDefs, resolvers } = require("./schemas");
 const PORT = process.env.PORT || 3001;
-
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-
-// if we're in production, serve client/build as static assets
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../client/build')));
-}
-
-app.use(routes);
-
-db.once('open', () => {
-  app.listen(PORT, () => console.log(`🌍 Now listening on localhost:${PORT}`));
+const db = require("./config");
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
 });
+const app = express();
+
+const startApollo = async () => {
+  await server.start();
+  app.use(express.urlencoded({ extended: true }));
+  app.use(exoress.json());
+  app.use("/graphql", expressMiddleware(server, { context: authMiddleware }));
+};
+if (process.env.NODE_ENV == "production") {
+}
